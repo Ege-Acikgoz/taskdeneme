@@ -1,0 +1,29 @@
+/* src/LiveMatchBulletin.css */
+
+.live-match-bulletin {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  z-index: 1000;
+}
+
+.live-match-bulletin h2 {
+  margin-bottom: 20px;
+}
+
+.live-match-bulletin ul {
+  list-style: none;
+  padding: 0;
+}
+
+.live-match-bulletin li {
+  margin: 10px 0;
+  font-size: 16px;
+}
