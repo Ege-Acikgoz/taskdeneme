@@ -1,13 +1,86 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maçlar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #match-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .match {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px;
+            width: 300px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .match h2 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #007BFF;
+        }
+
+        .match p {
+            margin: 5px 0;
+        }
+    </style>
+    <script>
+        // Sayfa yüklendiğinde API'den verileri çek
+        window.onload = async function () {
+            try {
+                const response = await fetch('http://localhost:5000/api/matches'); // API'den verileri çekiyoruz
+                const data = await response.json(); // JSON formatına dönüştürüyoruz
+
+                // Verileri sayfada listele
+                const matchContainer = document.getElementById('match-container');
+                
+                // Eğer maç verisi yoksa mesaj göster
+                if (!data.matches || data.matches.length === 0) {
+                    matchContainer.innerHTML = '<p>Maç verisi bulunamadı.</p>';
+                    return;
+                }
+
+                data.matches.forEach(match => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.classList.add('match');
+                    matchDiv.innerHTML = `
+                        <h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2>
+                        <p>Durum: ${match.status}</p>
+                        <p>Skor: ${match.score.fullTime.home} - ${match.score.fullTime.away}</p>
+                        <p>Tarih: ${new Date(match.utcDate).toLocaleString()}</p>
+                    `;
+                    matchContainer.appendChild(matchDiv);
+                });
+            } catch (error) {
+                console.error('Maçları alırken hata:', error);
+                const matchContainer = document.getElementById('match-container');
+                matchContainer.innerHTML = '<p>Veri alınırken hata oluştu.</p>';
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Maç Listesi</h1>
+    <div id="match-container">
+        <!-- Maçlar burada gösterilecek -->
+    </div>
+</body>
 </html>
