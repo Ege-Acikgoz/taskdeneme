@@ -1,48 +1,59 @@
-const express = require('express'); // Express modülünü içe aktar
-const axios = require('axios'); // Axios modülünü içe aktar
-const mongoose = require('mongoose'); // Mongoose modülünü içe aktar
-const cors = require('cors'); // CORS modülünü içe aktar
-require('dotenv').config(); // .env dosyasını yükle
+const express = require('express');
+const axios = require('axios');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 5000; // Port ayarı, ortam değişkeninden al veya 5000
+const port = process.env.PORT || 5000;
 
-// CORS middleware'ini kullan
+// Middleware
 app.use(cors());
-app.use(express.json()); // JSON gövdesini analiz etmek için
+app.use(express.json());
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB bağlantısı başarılı'))
   .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
-// Match Schema (MongoDB için)
+// Match şeması
 const matchSchema = new mongoose.Schema({
-  matchId: { type: Number, unique: true, required: true }, // Maç ID'si, benzersiz olmalı ve zorunlu
-  homeTeam: { type: String, required: true }, // Ev sahibi takım
-  awayTeam: { type: String, required: true }, // Deplasman takımı
-  status: { type: String, required: true }, // Maç durumu
-  score: { type: Object, required: true }, // Skor bilgisi
-  utcDate: { type: Date, required: true }, // UTC tarih bilgisi
+  matchId: { type: Number, unique: true, required: true },
+  homeTeam: { type: String, required: true },
+  awayTeam: { type: String, required: true },
+  status: { type: String, required: true },
+  score: {
+    fullTime: {
+      home: { type: Number, default: 0 },
+      away: { type: Number, default: 0 }
+    }
+  },
+  utcDate: { type: Date, required: true },
 });
 
-// Match modelini oluştur
+// Model
 const Match = mongoose.model('Match', matchSchema);
 
-// API endpoint - Maçları alma
+// Maç verilerini alma endpoint'i
 app.get('/api/matches', async (req, res) => {
   try {
-    const response = await axios.get('https://api.football-data.org/v4/matches', {
-      headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY } // API anahtarı
-    });
-    const matches = response.data.matches; // Gelen maç verisi
+    // API anahtarının doğru olup olmadığını kontrol et
+    if (!process.env.FOOTBALL_API_KEY) {
+      return res.status(400).json({ message: 'API anahtarı eksik' });
+    }
 
-    // Maç verisi yoksa hata döndür
+    const response = await axios.get('https://api.football-data.org/v4/matches', {
+      headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY }
+    });
+
+    console.log('Maç verisi yanıtı:', response.data); // Yanıtı logla
+    const matches = response.data.matches;
+
     if (!matches || matches.length === 0) {
       return res.status(404).json({ message: 'Maç verisi bulunamadı' });
     }
 
-    // Veritabanına toplu yazma işlemi
+    // Bulk operasyonlar için veri hazırlama
     const bulkOperations = matches.map(match => ({
       updateOne: {
         filter: { matchId: match.id },
@@ -55,12 +66,12 @@ app.get('/api/matches', async (req, res) => {
             utcDate: match.utcDate
           }
         },
-        upsert: true // Eğer maç yoksa yeni ekle
+        upsert: true
       }
     }));
 
-    await Match.bulkWrite(bulkOperations); // Toplu yazma işlemi
-
+    // BulkWrite ile verileri güncelle
+    await Match.bulkWrite(bulkOperations);
     res.json({ message: 'Maç verileri başarıyla güncellendi', matches });
   } catch (error) {
     console.error('Maç verilerini alırken hata:', error);
@@ -68,39 +79,30 @@ app.get('/api/matches', async (req, res) => {
   }
 });
 
-// Yeni bir maç eklemek için POST isteği
-app.post('/api/addMatch', async (req, res) => {
+// Puan durumu alma endpoint'i
+app.get('/api/standings', async (req, res) => {
   try {
-    const { matchId, homeTeam, awayTeam, status, score, utcDate } = req.body;
-
-    // Gerekli alanların kontrolü
-    if (!matchId || !homeTeam || !awayTeam || !status || !score || !utcDate) {
-      return res.status(400).json({ message: 'matchId, homeTeam, awayTeam, status, score ve utcDate alanları zorunludur.' });
+    // API anahtarının var olup olmadığını kontrol et
+    if (!process.env.FOOTBALL_API_KEY) {
+      return res.status(400).json({ message: 'API anahtarı eksik' });
     }
 
-    // Mevcut maç var mı kontrol et
-    const existingMatch = await Match.findOne({ matchId });
-    if (existingMatch) {
-      return res.status(409).json({ message: 'Bu matchId zaten mevcut.' });
-    }
-
-    // Yeni maç oluştur
-    const newMatch = new Match({
-      matchId,
-      homeTeam,
-      awayTeam,
-      status,
-      score,
-      utcDate
+    const response = await axios.get('https://api.football-data.org/v4/competitions/DED/standings', {
+      headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY }
     });
 
-    // Maçı veritabanına kaydet
-    await newMatch.save();
+    console.log('Puan durumu yanıtı:', response.data); // Yanıtı kontrol et
+    const standings = response.data.standings;
 
-    res.status(201).json({ message: 'Maç başarıyla eklendi', match: newMatch });
+    if (!standings || standings.length === 0) {
+      return res.status(404).json({ message: 'Puan durumu verisi bulunamadı' });
+    }
+
+    res.json(standings);
   } catch (error) {
-    console.error('Maç eklenirken hata:', error);
-    res.status(500).json({ message: 'Maç eklenirken hata oluştu', error: error.message });
+    // Hataları daha detaylı görmek için error.response'u kontrol et
+    console.error('Puan durumu verilerini alırken hata:', error.response ? error.response.data : error.message);
+    res.status(500).json({ message: 'Puan durumu verileri alınırken hata oluştu', error: error.message });
   }
 });
 

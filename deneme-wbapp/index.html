@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maçlar</title>
+    <title>Maçlar ve Puan Durumu</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,7 +16,7 @@
             color: #333;
         }
 
-        #match-container {
+        #match-container, #standings-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -41,20 +41,61 @@
         .match p {
             margin: 5px 0;
         }
+
+        #standings-table {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        #standings-table th, #standings-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        #standings-table th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        #standings-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #standings-table tbody tr:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        .team-name {
+            text-align: left;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
     <script>
-        // Sayfa yüklendiğinde API'den verileri çek
         window.onload = async function () {
-            try {
-                const response = await fetch('http://localhost:5000/api/matches'); // API'den verileri çekiyoruz
-                const data = await response.json(); // JSON formatına dönüştürüyoruz
+            await loadMatches();
+            await loadStandings();
+        };
 
-                // Verileri sayfada listele
+        async function loadMatches() {
+            try {
+                const response = await fetch('http://localhost:5000/api/matches');
+                if (!response.ok) {
+                    throw new Error('HTTP hatası, durum kodu: ' + response.status);
+                }
+
+                const data = await response.json();
                 const matchContainer = document.getElementById('match-container');
-                
-                // Eğer maç verisi yoksa mesaj göster
+
                 if (!data.matches || data.matches.length === 0) {
-                    matchContainer.innerHTML = '<p>Maç verisi bulunamadı.</p>';
+                    matchContainer.innerHTML = '<p class="error-message">Maç verisi bulunamadı.</p>';
                     return;
                 }
 
@@ -62,7 +103,7 @@
                     const matchDiv = document.createElement('div');
                     matchDiv.classList.add('match');
                     matchDiv.innerHTML = `
-                        <h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2>
+                        <h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2> <!-- Takım isimleri güncellendi -->
                         <p>Durum: ${match.status}</p>
                         <p>Skor: ${match.score.fullTime.home} - ${match.score.fullTime.away}</p>
                         <p>Tarih: ${new Date(match.utcDate).toLocaleString()}</p>
@@ -72,15 +113,73 @@
             } catch (error) {
                 console.error('Maçları alırken hata:', error);
                 const matchContainer = document.getElementById('match-container');
-                matchContainer.innerHTML = '<p>Veri alınırken hata oluştu.</p>';
+                matchContainer.innerHTML = '<p class="error-message">Veri alınırken hata oluştu.</p>';
             }
-        };
+        }
+
+        async function loadStandings() {
+            try {
+                const response = await fetch('http://localhost:5000/api/standings');
+                if (!response.ok) {
+                    throw new Error('HTTP hatası, durum kodu: ' + response.status);
+                }
+
+                const data = await response.json();
+                const standingsTableBody = document.getElementById('standings-body');
+
+                if (!data || data.length === 0) {
+                    standingsTableBody.innerHTML = '<tr><td colspan="9" class="error-message">Puan durumu bulunamadı.</td></tr>';
+                    return;
+                }
+
+                // Puan durumu verilerini tabloya ekliyoruz
+                data[0].table.forEach((team, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td class="team-name">${team.team.name}</td>
+                        <td>${team.playedGames}</td>
+                        <td>${team.won}</td>
+                        <td>${team.draw}</td>
+                        <td>${team.lost}</td>
+                        <td>${team.goalsFor}</td>
+                        <td>${team.goalsAgainst}</td>
+                        <td>${team.goalDifference}</td>
+                        <td>${team.points}</td>
+                    `;
+                    standingsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Puan durumu alınırken hata:', error);
+                const standingsTableBody = document.getElementById('standings-body');
+                standingsTableBody.innerHTML = '<tr><td colspan="9" class="error-message">Veri alınırken hata oluştu.</td></tr>';
+            }
+        }
     </script>
 </head>
 <body>
     <h1>Maç Listesi</h1>
-    <div id="match-container">
-        <!-- Maçlar buradaa gösterilecek -->
-    </div>
+    <div id="match-container"></div>
+
+    <h1>Puan Durumu</h1>
+    <table id="standings-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Takım</th>
+                <th>O</th>
+                <th>G</th>
+                <th>B</th>
+                <th>M</th>
+                <th>AG</th>
+                <th>YG</th>
+                <th>AV</th>
+                <th>P</th>
+            </tr>
+        </thead>
+        <tbody id="standings-body">
+            <!-- Puan durumu buraya eklenecek -->
+        </tbody>
+    </table>
 </body>
 </html>
