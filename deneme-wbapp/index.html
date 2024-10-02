@@ -3,43 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maçlar ve Puan Durumu</title>
+    <title>SportsKing</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             background-color: #f4f4f4;
         }
 
         h1 {
             text-align: center;
             color: #333;
+            margin: 20px 0;
         }
 
-        #match-container, #standings-container {
+        /* Navbar stili */
+        .navbar {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .navbar button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .navbar button:hover {
+            background-color: #004494;
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+
+        /* Upcoming Matches Bülten Stili */
+        .match-bulletin {
+            display: flex;
+            flex-direction: column; /* Alt alta diz */
+            align-items: flex-start; /* Sola yasla */
+            gap: 10px; /* Boşluk */
+            width: 100%; /* Genişlik */
+            max-width: 300px; /* Maksimum genişlik */
         }
 
         .match {
-            background: white;
+            background: #fff;
             border: 1px solid #ccc;
             border-radius: 5px;
-            padding: 15px;
-            margin: 10px;
-            width: 300px;
+            padding: 8px;
+            width: 100%; /* Genişlik */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left; /* Sola yasla */
+            font-size: 0.9em; /* Yazı boyutu */
+            cursor: pointer; /* Tıklanabilir göster */
+            transition: background-color 0.3s; /* Geçiş efekti */
+        }
+
+        .match:hover {
+            background-color: #f0f0f0; /* Üzerine gelince arka plan rengini değiştir */
         }
 
         .match h2 {
-            margin: 0;
-            font-size: 1.2em;
-            color: #007BFF;
+            font-size: 1em; /* Başlık boyutu */
+            color: #007BFF; /* Başlık rengi */
+            margin: 0; /* Kenar boşluklarını kaldır */
         }
 
         .match p {
-            margin: 5px 0;
+            margin: 0; /* Üst-alt boşlukları kaldır */
+            font-size: 0.8em; /* Daha küçük yazı boyutu */
         }
 
         #standings-table {
@@ -77,11 +124,52 @@
             font-weight: bold;
             text-align: center;
         }
+
+        /* Pinned Leagues stil */
+        #pinned-leagues-container {
+            margin: 20px;
+            width: 200px; /* Genişliği küçültüm */
+            align-self: flex-start; /* Sol üst köşeye yasla */
+            font-size: 12px; /* Yazı boyutunu küçültüm */
+            line-height: 1.5; /* Satır yüksekliğini artırdım */
+        }
+
+        #pinned-leagues-body {
+            display: flex;
+            flex-direction: column; /* Dikey yönde hizala */
+            gap: 5px; /* Elemanlar arasına boşluk ekle */
+            text-align: left; /* Metni sola yasla */
+        }
+
+        #pinned-leagues-list {
+            list-style-type: none; /* Madde işaretlerini kaldır */
+            padding: 0; /* İç boşluğu kaldır */
+            margin: 0; /* Dış boşluğu kaldır */
+        }
+
+        #pinned-leagues-list li {
+            background-color: #e0e0e0; /* Arka plan rengi */
+            padding: 5px; /* İç boşluk */
+            border-radius: 5px; /* Köşeleri yuvarla */
+            cursor: pointer; /* Üzerine gelince tıklanabilir göster */
+            transition: background-color 0.3s; /* Geçiş efekti */
+        }
+
+        #pinned-leagues-list li:hover {
+            background-color: #d0d0d0; /* Üzerine gelince arka plan rengini değiştir */
+        }
+
+        /* Match container styles */
+        #match-container {
+            flex: 1; /* Esnek genişlik */
+            margin-right: 20px; /* Sağda boşluk */
+        }
     </style>
     <script>
         window.onload = async function () {
             await loadMatches();
             await loadStandings();
+            await loadCompetitions(); // Competitions'ı yükle
         };
 
         async function loadMatches() {
@@ -99,15 +187,19 @@
                     return;
                 }
 
+                matchContainer.innerHTML = ''; // Önceki maçları temizle
+
                 data.matches.forEach(match => {
                     const matchDiv = document.createElement('div');
                     matchDiv.classList.add('match');
                     matchDiv.innerHTML = `
-                        <h2>${match.homeTeam.name} vs ${match.awayTeam.name}</h2> <!-- Takım isimleri güncellendi -->
-                        <p>Durum: ${match.status}</p>
-                        <p>Skor: ${match.score.fullTime.home} - ${match.score.fullTime.away}</p>
-                        <p>Tarih: ${new Date(match.utcDate).toLocaleString()}</p>
+                        <h2>${match.homeTeam.name} - ${match.awayTeam.name}</h2>
+                        <p>${new Date(match.utcDate).toLocaleString('tr-TR', {timeZone: 'Europe/Istanbul', hour: '2-digit', minute:'2-digit'})}</p>
                     `;
+                    matchDiv.onclick = () => {
+                        // Tıklanıldığında lig sayfasına yönlendir
+                        window.location.href = `http://localhost:5000/api/competitions/${match.competition.id}`;
+                    };
                     matchContainer.appendChild(matchDiv);
                 });
             } catch (error) {
@@ -132,7 +224,8 @@
                     return;
                 }
 
-                // Puan durumu verilerini tabloya ekliyoruz
+                standingsTableBody.innerHTML = ''; // Önceki puan durumunu temizle
+
                 data[0].table.forEach((team, index) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -155,31 +248,75 @@
                 standingsTableBody.innerHTML = '<tr><td colspan="9" class="error-message">Veri alınırken hata oluştu.</td></tr>';
             }
         }
+
+        async function loadCompetitions() {
+            try {
+                const response = await fetch('http://localhost:5000/api/competitions');
+                if (!response.ok) {
+                    throw new Error('HTTP hatası, durum kodu: ' + response.status);
+                }
+
+                const data = await response.json();
+                const pinnedLeaguesList = document.getElementById('pinned-leagues-list');
+
+                if (!data || data.length === 0) {
+                    pinnedLeaguesList.innerHTML = '<li class="error-message">Lig verisi bulunamadı.</li>';
+                    return;
+                }
+
+                pinnedLeaguesList.innerHTML = ''; // Önceki ligleri temizle
+
+                data.forEach(competition => {
+                    const leagueItem = document.createElement('li');
+                    leagueItem.textContent = competition.name;
+                    leagueItem.onclick = () => {
+                        // Lig tıklanınca sayfasına yönlendir
+                        window.location.href = `http://localhost:5000/api/competitions/${competition.id}`;
+                    };
+                    pinnedLeaguesList.appendChild(leagueItem);
+                });
+            } catch (error) {
+                console.error('Ligleri alırken hata:', error);
+                const pinnedLeaguesList = document.getElementById('pinned-leagues-list');
+                pinnedLeaguesList.innerHTML = '<li class="error-message">Veri alınırken hata oluştu.</li>';
+            }
+        }
     </script>
 </head>
 <body>
-    <h1>Maç Listesi</h1>
-    <div id="match-container"></div>
-
+    <div class="navbar">
+        <h2>SportsKing</h2>
+        <div>
+            <button onclick="loadCompetitions()">Football</button>
+        </div>
+    </div>
+    <h1>Günün Maçları</h1>
+    <div id="container">
+        <div id="match-container"></div>
+        <div id="pinned-leagues-container">
+            <h3>Favori Ligler</h3>
+            <div id="pinned-leagues-body">
+                <ul id="pinned-leagues-list"></ul>
+            </div>
+        </div>
+    </div>
     <h1>Puan Durumu</h1>
     <table id="standings-table">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Sıra</th>
                 <th>Takım</th>
-                <th>O</th>
-                <th>G</th>
-                <th>B</th>
-                <th>M</th>
-                <th>AG</th>
-                <th>YG</th>
-                <th>AV</th>
-                <th>P</th>
+                <th>Oynanan</th>
+                <th>Galibiyet</th>
+                <th>Beraberlik</th>
+                <th>Mağlubiyet</th>
+                <th>Atılan Gol</th>
+                <th>Yenilen Gol</th>
+                <th>Averaj</th>
+                <th>Puan</th>
             </tr>
         </thead>
-        <tbody id="standings-body">
-            <!-- Puan durumu buraya eklenecek -->
-        </tbody>
+        <tbody id="standings-body"></tbody>
     </table>
 </body>
 </html>

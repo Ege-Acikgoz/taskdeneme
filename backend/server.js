@@ -106,6 +106,33 @@ app.get('/api/standings', async (req, res) => {
   }
 });
 
+// Yeni bir endpoint: Tüm yarışmaları alma
+app.get('/api/competitions', async (req, res) => {
+  try {
+    // API anahtarının var olup olmadığını kontrol et
+    if (!process.env.FOOTBALL_API_KEY) {
+      return res.status(400).json({ message: 'API anahtarı eksik' });
+    }
+
+    const response = await axios.get('https://api.football-data.org/v4/competitions/', {
+      headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY }
+    });
+
+    console.log('Yarışmalar yanıtı:', response.data); // Yanıtı kontrol et
+    const competitions = response.data.competitions;
+
+    if (!competitions || competitions.length === 0) {
+      return res.status(404).json({ message: 'Yarışma verisi bulunamadı' });
+    }
+
+    res.json(competitions);
+  } catch (error) {
+    // Hataları daha detaylı görmek için error.response'u kontrol et
+    console.error('Yarışma verilerini alırken hata:', error.response ? error.response.data : error.message);
+    res.status(500).json({ message: 'Yarışma verileri alınırken hata oluştu', error: error.message });
+  }
+});
+
 // Sunucuyu başlat
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda çalışıyor`);
