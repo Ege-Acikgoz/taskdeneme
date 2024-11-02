@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportsKing</title>
+    <title>MikigiSports</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,8 +14,10 @@
         h1 {
             text-align: center;
             color: #333;
-            margin: 20px 0;
+            margin: 0px 0;
+        
         }
+        
 
         /* Navbar stili */
         .navbar {
@@ -53,21 +55,22 @@
 
         /* Upcoming Matches Bülten Stili */
         .match-bulletin {
-            display: flex;
+            display: felx;
+            align-self: flex-start; /* Sol üst köşeye yasla */
             flex-direction: column; /* Alt alta diz */
             align-items: flex-start; /* Sola yasla */
-            gap: 10px; /* Boşluk */
-            width: 100%; /* Genişlik */
-            max-width: 300px; /* Maksimum genişlik */
+            gap: 5px; /* Boşluk */
+            width: 20%; /* Genişlik */
+           
         }
 
         .match {
-            background: #fff;
+            background: #ffffff;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 8px;
-            width: 100%; /* Genişlik */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 1px;
+            padding: 5px;
+            width: 50%; /* Genişlik */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
             text-align: left; /* Sola yasla */
             font-size: 0.9em; /* Yazı boyutu */
             cursor: pointer; /* Tıklanabilir göster */
@@ -80,9 +83,12 @@
 
         .match h2 {
             font-size: 1em; /* Başlık boyutu */
+            align-items: flex-start; /* Sola yasla */
             color: #007BFF; /* Başlık rengi */
             margin: 0; /* Kenar boşluklarını kaldır */
         }
+       
+        
 
         .match p {
             margin: 0; /* Üst-alt boşlukları kaldır */
@@ -90,34 +96,35 @@
         }
 
         #standings-table {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            border-collapse: collapse;
-        }
+    width: 50%;                /* Tablonun genişliğini %100 yapar */
+    max-width: 200px;          /* Maksimum genişliği 400px olarak ayarlar */
+    margin: 6px 0;            /* Üst ve alt boşluk bırakır, yanlardan boşluk yok */
+    border-collapse: collapse; /* Kenar çakışmasını kaldırır */
+}
 
-        #standings-table th, #standings-table td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ccc;
-        }
+#standings-table th, #standings-table td {
+    padding: 4px;              
+    text-align: center;        
+    border: 1px solid #ccc;    
+}
 
-        #standings-table th {
-            background-color: #007BFF;
-            color: white;
-        }
+#standings-table th {
+    background-color: #007BFF; 
+    color: white;               
+}
 
-        #standings-table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+#standings-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; 
+}
 
-        #standings-table tbody tr:nth-child(odd) {
-            background-color: #fff;
-        }
+#standings-table tbody tr:nth-child(odd) {
+    background-color: #fff;    
+}
 
-        .team-name {
-            text-align: left;
-        }
+.team-name {
+    text-align: left;          /* Takım isimlerini sola hizalar */
+}
+
 
         .error-message {
             color: red;
@@ -285,12 +292,12 @@
 </head>
 <body>
     <div class="navbar">
-        <h2>SportsKing</h2>
+        <h2>MikigiSports    </h2>
         <div>
             <button onclick="loadCompetitions()">Football</button>
         </div>
     </div>
-    <h1>Günün Maçları</h1>
+    <h3 class="left-aligned">Günün Maçları</h3>
     <div id="container">
         <div id="match-container"></div>
         <div id="pinned-leagues-container">

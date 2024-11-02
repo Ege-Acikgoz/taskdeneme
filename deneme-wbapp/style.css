@@ -1,0 +1,165 @@
+/* Genel ayarlar */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+/* Başlık ayarları */
+h1 {
+    text-align: center;
+    color: #333;
+    margin: 20px 0;
+}
+
+/* Navbar stili */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #007BFF; /* Navbar rengi */
+    color: white;
+    padding: 10px 20px;
+}
+
+.navbar h2 {
+    margin: 0;
+}
+
+.navbar button {
+    background-color: #0056b3; /* Buton rengi */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background-color 0.3s; /* Geçiş efekti */
+}
+
+.navbar button:hover {
+    background-color: #004494; /* Hover durumu */
+}
+
+/* Container stili */
+#container {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+/* Upcoming Matches Bülten Stili */
+.match-bulletin {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.match {
+    background: #fff; /* Maç kutusu rengi */
+    border: 1px solid #ccc; /* Kenar rengi */
+    border-radius: 5px;
+    padding: 8px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Gölge efekti */
+    text-align: left;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Geçiş efekti */
+}
+
+.match:hover {
+    background-color: #f0f0f0; /* Hover durumu */
+}
+
+.match h2 {
+    font-size: 1em;
+    color: #007BFF; /* Maç başlığı rengi */
+    margin: 0;
+}
+
+.match p {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+/* Puan Durumu Tablosu Stili */
+#standings-table {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    border-collapse: collapse; /* Kenar boşluklarını kaldır */
+}
+
+#standings-table th, #standings-table td {
+    padding: 10px; /* İç boşluk */
+    text-align: center; /* Merkez hizalama */
+    border: 1px solid #ccc; /* Kenar rengi */
+}
+
+#standings-table th {
+    background-color: #007BFF; /* Başlık arka plan rengi */
+    color: white; /* Başlık yazı rengi */
+}
+
+#standings-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Çift satır rengi */
+}
+
+#standings-table tbody tr:nth-child(odd) {
+    background-color: #fff; /* Tek satır rengi */
+}
+
+.team-name {
+    text-align: left; /* Takım isimleri sola hizalı */
+}
+
+/* Hata mesajı stili */
+.error-message {
+    color: red; /* Hata mesajı rengi */
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Favori Ligler stili */
+#pinned-leagues-container {
+    margin: 20px;
+    width: 200px; /* Favori ligler genişliği */
+    align-self: flex-start; /* Üstte hizalı */
+    font-size: 12px;
+    line-height: 1.5; /* Satır yüksekliği */
+}
+
+#pinned-leagues-body {
+    display: flex;
+    flex-direction: column; /* Dikey düzenleme */
+    gap: 5px; /* Aralık */
+    text-align: left;
+}
+
+#pinned-leagues-list {
+    list-style-type: none; /* Noktaları kaldır */
+    padding: 0; /* İç boşluk kaldır */
+    margin: 0; /* Dış boşluk kaldır */
+}
+
+#pinned-leagues-list li {
+    background-color: #e0e0e0; /* Favori ligler arka plan rengi */
+    padding: 5px; /* İç boşluk */
+    border-radius: 5px; /* Kenar yuvarlama */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Geçiş efekti */
+}
+
+#pinned-leagues-list li:hover {
+    background-color: #d0d0d0; /* Hover durumu */
+}
+
+/* Maç konteyner stili */
+#match-container {
+    flex: 1; /* Genişlik ayarı */
+    margin-right: 20px; /* Sağ boşluk */
+}
